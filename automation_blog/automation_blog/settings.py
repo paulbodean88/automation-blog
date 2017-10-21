@@ -25,12 +25,13 @@ SECRET_KEY = '&7j7e9&r34kq1l@w4oacmcpremw@6zi760-*512z0+m29ph4^x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0']
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost', 'ec2-18-194-213-34.eu-central-1.compute.amazonaws.com']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'blog.apps.BlogConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
