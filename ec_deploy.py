@@ -1,22 +1,47 @@
-import subprocess
-
-import sys
+from json import load
+from subprocess import Popen, PIPE
 from time import sleep
 
-cp = subprocess.Popen(['ssh', '-i', '/Users/eugenm/Desktop/frankfurt_key.pem', 'ubuntu@18.194.213.34'], stdin=subprocess.PIPE)
-sleep(1)
-cp.stdin.write(bytes('cd apps/automation-blog\n', encoding='utf-8'))
 
-cp.stdin.write(bytes('git reset --hard\n', encoding='utf-8'))
+class SSHClient(object):
 
-cp.stdin.write(bytes('git checkout develop\n', encoding='utf-8'))
+    def __init__(self, user, host_address):
+        self.__user = user
+        self.__host_address = host_address
+        self._connection = None
 
-cp.stdin.write(bytes('git pull\n', encoding='utf-8'))
+    def connect_with_certificate(self, path_to_certificate):
+        arguments = ['ssh', '-i', path_to_certificate, self.__user + '@' + self.__host_address]
+        self._connection = Popen(arguments, stdin=PIPE)
+        
+    def cd(self, path):
+        self._connection.stdin.write(bytes('cd ' + path + '\n', encoding='utf-8'))
+        
+    def hard_reset(self):
+        self._connection.stdin.write(bytes('git reset --hard\n', encoding='utf-8'))
+        
+    def update(self, branch):
+        self._connection.stdin.write(bytes('git fetch\n', encoding='utf-8'))
+        self._connection.stdin.write(bytes('git checkout ' + branch + '\n', encoding='utf-8'))
+        self._connection.stdin.write(bytes('git pull\n', encoding='utf-8'))
 
-cp.stdin.write(bytes('cd ../..\n', encoding='utf-8'))
+    def execute(self):
+        self._connection.communicate()
 
-cp.stdin.write(bytes('sudo venvs/automation-blog/bin/python apps/automation-blog/automation_blog/manage.py runserver 0:80&\n', encoding='utf-8'))
+
+class SSHDeploy(SSHClient):
+    def __init__(self, user, host_address):
+        super().__init__(user, host_address)
+        
+    def deploy(self, config):
+        self.cd(config['project-root'])
+        self.update(config['deploy-branch'])
+        self.cd('../..')
+        self._connection.stdin.write(bytes('sudo venvs/automation-blog/bin/python apps/automation-blog/automation_blog/manage.py runserver ' + config['deploy-on'] + '\n', encoding='utf-8'))
+        self.execute()
 
 
-out = cp.communicate()[0]
-print(out)
+if __name__ == '__main__':
+    proj_config = load(open('../project.config', 'r'))
+    remote = SSHDeploy(proj_config['username'], proj_config['host-server'])
+    remote.deploy(proj_config)
