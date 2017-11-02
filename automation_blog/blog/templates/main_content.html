@@ -1,0 +1,44 @@
+<html>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            {% for post in posts %}
+                <div class="post-preview">
+                    <a href="post.html">
+                        <h2 class="post-title">
+                            {{post.title}}
+                        </h2>
+                        <h3 class="post-subtitle">
+                            {{post.body}}
+                        </h3>
+                    </a>
+                    <p class="post-meta">Posted by
+                        <a href="#">Start Bootstrap</a>
+                        on September 24, 2017</p>
+                </div>
+                <hr>
+            {% endfor %}
+            <!-- Pager -->
+            <table style="width: 100%;">
+                <tr style="width: 0;">
+                    <td class="float-left">
+                        <div class="clearfix">
+                            {% if not next_page == 1 %}
+                                <a class="btn btn-secondary float-left" href="{{prev_page}}">Newer &larr;</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="float-right">
+                        <div class="clearfix">
+                            {% if not next_page == -1 %}
+                                <a class="btn btn-secondary float-right" href="{{next_page}}">Older &rarr;</a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+</html>
