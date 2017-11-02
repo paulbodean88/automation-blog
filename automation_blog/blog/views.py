@@ -18,7 +18,7 @@ def index(request):
 def home(request, page=None):
     print(type(page))
     page = 0 if page is None else int(page[1:])
-    posts: List[Post] = Post.objects.all().order_by("-created_date")
+    posts = Post.objects.all().order_by("-created_date")
 
     render_posts = []
     for post in posts[page * 3: page * 3 + 3]:
